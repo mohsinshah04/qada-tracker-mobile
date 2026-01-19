@@ -258,6 +258,33 @@ export default function SetupScreen() {
     }
   };
 
+  // DEV ONLY: remove before production
+  const handleUseDummyData = () => {
+    try {
+      const dummyBirthDate = '2000-01-18';
+      const dummyStartAge = 12;
+      const dummyPercentMissed: PrayerMap = {
+        FAJR: 40,
+        DHUHR: 30,
+        ASR: 20,
+        MAGHRIB: 10,
+        ISHA: 25,
+        WITR: 15,
+      };
+
+      const newState = createInitialState({
+        birthDate: dummyBirthDate,
+        startAge: dummyStartAge,
+        percentMissed: dummyPercentMissed,
+      });
+
+      setState(() => newState);
+      router.replace('/(tabs)/home');
+    } catch (error) {
+      console.error('Failed to create dummy state:', error);
+    }
+  };
+
   const canCalculate =
     birthDateValid &&
     gender !== null &&
@@ -430,6 +457,13 @@ export default function SetupScreen() {
               disabled={!canCalculate}>
               <ThemedText type="defaultSemiBold" style={styles.buttonText}>
                 Calculate & Continue
+              </ThemedText>
+            </Pressable>
+
+            {/* DEV ONLY: remove before production */}
+            <Pressable onPress={handleUseDummyData} style={styles.devButton}>
+              <ThemedText style={styles.devButtonText}>
+                Use Dummy Data (DEV)
               </ThemedText>
             </Pressable>
           </ScrollView>
@@ -642,5 +676,15 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#ffffff',
+  },
+  devButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  devButtonText: {
+    color: '#999999',
+    fontSize: 12,
   },
 });
