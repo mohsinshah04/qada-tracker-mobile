@@ -3,10 +3,10 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
-import { useQadaState } from '@/src/state/useQadaState';
+import { useQada } from '@/src/state/QadaProvider';
 
 export default function IndexScreen() {
-  const { state, loading } = useQadaState();
+  const { state, loading } = useQada();
   const router = useRouter();
 
   useEffect(() => {

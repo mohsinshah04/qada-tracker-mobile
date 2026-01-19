@@ -13,7 +13,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
-import { useQadaState } from '@/src/state/useQadaState';
+import { useQada } from '@/src/state/QadaProvider';
 import { PRAYERS, Prayer, PrayerMap } from '@/src/core/types';
 import { createInitialState, computeEligibleDays } from '@/src/core/calc';
 import { parseYmdToLocalMidnight, formatLocalDateToYmd, startOfTodayLocal } from '@/src/core/date';
@@ -40,7 +40,7 @@ function calculateCurrentAge(birthDateYmd: string): number | null {
 }
 
 export default function SetupScreen() {
-  const { setState } = useQadaState();
+  const { setState } = useQada();
 
   const [birthDate, setBirthDate] = useState('');
   const [startAgeText, setStartAgeText] = useState('');

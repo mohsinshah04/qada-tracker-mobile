@@ -1,9 +1,9 @@
-import { StyleSheet, ActivityIndicator, ScrollView, View, Pressable } from 'react-native';
+import { StyleSheet, ActivityIndicator, View, Pressable, FlatList, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
-import { useQadaState } from '@/src/state/useQadaState';
+import { useQada } from '@/src/state/QadaProvider';
 import { PRAYERS, Prayer } from '@/src/core/types';
 
 // Format ISO date string to readable format
@@ -23,7 +23,7 @@ function formatDate(isoString: string): string {
 }
 
 export default function ProgressScreen() {
-  const { state, loading } = useQadaState();
+  const { state, loading } = useQada();
 
   if (loading) {
     return (
@@ -53,53 +53,44 @@ export default function ProgressScreen() {
     );
   }
 
-  // Calculate total remaining across all prayers
-  const totalRemaining = PRAYERS.reduce((sum, prayer) => sum + state.remaining[prayer], 0);
+  const renderPrayerCard = ({ item: prayer }: { item: Prayer }) => {
+    return (
+      <View style={styles.card}>
+        <ThemedText style={styles.prayerName}>{prayer}</ThemedText>
+        <Text
+          style={styles.prayerRemaining}
+          textAlignVertical="center"
+          includeFontPadding={false}>
+          {state.remaining[prayer]}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <ThemedText type="title" style={styles.title}>
-          Progress
-        </ThemedText>
-
-        <View style={styles.summarySection}>
-          <ThemedText style={styles.summaryText}>
-            Total days counted: {state.eligibleDays}
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <ThemedText type="title" style={styles.title}>
+            Progress
           </ThemedText>
-          <ThemedText style={styles.summaryText}>
+          <ThemedText style={styles.lastUpdatedText}>
             Last updated: {formatDate(state.updatedAt)}
           </ThemedText>
-          <ThemedText style={styles.summaryText}>
-            Total remaining (all prayers): {totalRemaining}
-          </ThemedText>
         </View>
 
-        <View style={styles.prayersSection}>
-          {PRAYERS.map((prayer) => (
-            <View key={prayer} style={styles.prayerCard}>
-              <ThemedText type="subtitle" style={styles.prayerName}>
-                {prayer}
-              </ThemedText>
-              <View style={styles.prayerDetails}>
-                <ThemedText style={styles.prayerDetail}>
-                  Remaining: {state.remaining[prayer]}
-                </ThemedText>
-                <ThemedText style={styles.prayerDetail}>
-                  Total: {state.totals[prayer]}
-                </ThemedText>
-                <ThemedText style={styles.prayerDetail}>
-                  Percent missed: {state.percentMissed[prayer]}%
-                </ThemedText>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        <ThemedText style={styles.noteText}>
-          Progress updates automatically as you log prayers on Home.
-        </ThemedText>
-      </ScrollView>
+        <FlatList
+          data={PRAYERS}
+          renderItem={renderPrayerCard}
+          keyExtractor={(item) => item}
+          numColumns={1}
+          contentContainerStyle={styles.listContent}
+          scrollEnabled={false}
+          style={styles.list}
+          removeClippedSubviews={false}
+          key="progress-prayers-list"
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -121,12 +112,17 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 20,
   },
-  scrollContent: {
-    padding: 20,
-    gap: 24,
+  container: {
+    flex: 1,
+    padding: 8,
+  },
+  header: {
+    marginBottom: 8,
+    gap: 2,
   },
   title: {
     color: '#ffffff',
+    fontSize: 18,
   },
   emptyText: {
     color: '#cccccc',
@@ -145,38 +141,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  summarySection: {
-    gap: 8,
+  lastUpdatedText: {
+    color: '#cccccc',
+    fontSize: 11,
   },
-  summaryText: {
-    color: '#ffffff',
-    fontSize: 16,
+  list: {
+    flex: 1,
   },
-  prayersSection: {
-    gap: 12,
+  listContent: {
+    flexGrow: 1,
+    gap: 6,
   },
-  prayerCard: {
+  card: {
+    width: '100%',
+    flex: 1,
     borderWidth: 1,
     borderColor: '#666666',
     borderRadius: 8,
-    padding: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     backgroundColor: '#1a1a1a',
-    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
   },
   prayerName: {
     color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '600',
   },
-  prayerDetails: {
-    gap: 4,
-  },
-  prayerDetail: {
-    color: '#cccccc',
-    fontSize: 14,
-  },
-  noteText: {
-    color: '#999999',
-    fontSize: 12,
-    fontStyle: 'italic',
-    marginTop: 8,
+  prayerRemaining: {
+    color: '#ffffff',
+    fontSize: 24,
+    lineHeight: 28,
+    fontWeight: 'bold',
   },
 });

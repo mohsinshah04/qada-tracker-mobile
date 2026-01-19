@@ -3,10 +3,10 @@ import { router } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { useQadaState } from '@/src/state/useQadaState';
+import { useQada } from '@/src/state/QadaProvider';
 
 export default function SettingsScreen() {
-  const { reset } = useQadaState();
+  const { reset } = useQada();
 
   const handleRestartSetup = () => {
     Alert.alert(
